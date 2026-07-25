@@ -1,0 +1,516 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>전지적 독자 시점 · 심화 독후활동</title>
+<style>
+  :root{
+    --bg:#0a0e1f;--bg2:#121834;--panel:rgba(22,29,58,.72);--panel2:rgba(30,38,74,.6);
+    --gold:#f5c451;--gold2:#ffe08a;--purple:#9a7bff;--cyan:#5fd7ff;--pink:#ff86c8;
+    --line:rgba(255,255,255,.12);--txt:#eef1ff;--dim:#a7add0;--green:#5fe0a0;--red:#ff7b7b;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;color:var(--txt);
+    background:radial-gradient(1200px 700px at 15% -5%, #23205a55, transparent 60%),
+      radial-gradient(1000px 700px at 90% 0%, #1e3a6a55, transparent 55%),
+      linear-gradient(180deg,#0a0e1f 0%, #0b0f24 60%, #090c1a 100%);
+    min-height:100vh;-webkit-tap-highlight-color:transparent;
+  }
+  .stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+  .stars i{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.6;animation:tw 3s infinite ease-in-out}
+  @keyframes tw{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:.9;transform:scale(1.3)}}
+  .wrap{position:relative;z-index:1;max-width:820px;margin:0 auto;padding:22px 16px 90px}
+
+  header.hero{text-align:center;padding:26px 14px 10px}
+  .badge{display:inline-block;font-size:12px;letter-spacing:3px;color:var(--gold);border:1px solid var(--gold);border-radius:999px;padding:6px 14px;opacity:.9}
+  h1{font-size:30px;margin:16px 0 6px;letter-spacing:-.5px;
+     background:linear-gradient(90deg,var(--gold2),var(--gold),#c9962e);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 2px 30px rgba(245,196,81,.25)}
+  .sub{color:var(--dim);font-size:14px;line-height:1.7}
+  .sys{margin:14px auto 0;max-width:580px;font-size:13px;color:var(--gold2);
+     border:1px dashed rgba(245,196,81,.45);border-radius:12px;padding:10px 14px;background:rgba(245,196,81,.06)}
+
+  nav.tabs{position:sticky;top:0;z-index:5;display:flex;gap:6px;overflow-x:auto;padding:12px 4px;margin:12px -4px 8px;
+    background:linear-gradient(180deg,var(--bg) 60%,transparent);scrollbar-width:none}
+  nav.tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;border:1px solid var(--line);background:var(--panel2);color:var(--dim);
+    padding:9px 14px;border-radius:12px;font-size:13.5px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.15s}
+  .tab.active{color:#1a1330;background:linear-gradient(180deg,var(--gold2),var(--gold));border-color:var(--gold);box-shadow:0 6px 18px rgba(245,196,81,.25)}
+
+  section{display:none;animation:fade .35s ease}
+  section.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px 16px;margin:14px 0;backdrop-filter:blur(6px);box-shadow:0 10px 34px rgba(0,0,0,.35)}
+  .card h2{margin:2px 0 4px;font-size:19px}
+  .card .lead{color:var(--dim);font-size:13.5px;line-height:1.7;margin:0 0 6px}
+  .q{font-weight:700;font-size:15.5px;margin:16px 0 10px;line-height:1.6}
+  .q b{color:var(--gold)}
+  .lvl{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;margin-left:6px;vertical-align:middle}
+  .lvl.hard{background:rgba(255,134,200,.18);color:var(--pink);border:1px solid var(--pink)}
+
+  .opt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--panel2);color:var(--txt);
+    padding:12px 14px;border-radius:12px;margin:8px 0;font-size:14.5px;cursor:pointer;transition:.15s;line-height:1.5}
+  .opt:hover{border-color:var(--gold);transform:translateY(-1px)}
+  .opt.correct{background:rgba(95,224,160,.16);border-color:var(--green);color:#d6ffe9}
+  .opt.wrong{background:rgba(255,123,123,.14);border-color:var(--red);color:#ffe0e0}
+  .opt.dim{opacity:.5}
+  .expl{font-size:13px;color:var(--cyan);margin:4px 2px 2px;padding:8px 12px;border-left:3px solid var(--cyan);background:rgba(95,215,255,.08);border-radius:0 10px 10px 0;display:none;line-height:1.6}
+  .expl.show{display:block;animation:fade .3s}
+
+  .bar{height:10px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden;margin:10px 0}
+  .bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .5s}
+  .scoreBox{text-align:center;padding:18px;border-radius:16px;background:rgba(245,196,81,.08);border:1px solid rgba(245,196,81,.35);display:none}
+  .scoreBox.show{display:block;animation:fade .4s}
+  .scoreBox .big{font-size:38px;font-weight:800;color:var(--gold)}
+
+  .btn{display:inline-flex;align-items:center;gap:6px;border:none;border-radius:12px;padding:11px 18px;font-weight:800;font-size:14px;cursor:pointer;
+    background:linear-gradient(180deg,var(--gold2),var(--gold));color:#1a1330;box-shadow:0 6px 16px rgba(245,196,81,.3);transition:.15s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn.ghost{background:transparent;color:var(--gold2);border:1px solid var(--gold)}
+  .btn.small{padding:8px 14px;font-size:13px}
+  .rowbtn{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+
+  .ptrait{display:flex;flex-direction:column;gap:8px}
+  .presult{display:none}
+  .presult.show{display:block;animation:fade .4s}
+  .starcard{text-align:center;border:1px solid var(--gold);border-radius:18px;padding:22px 16px;background:radial-gradient(500px 200px at 50% 0%,rgba(154,123,255,.18),transparent),var(--panel)}
+  .starcard .emoji{font-size:52px}
+  .starcard h3{font-size:22px;margin:8px 0 4px;color:var(--gold2)}
+  .starcard .tag{display:inline-block;font-size:12px;color:var(--purple);border:1px solid var(--purple);border-radius:999px;padding:4px 12px;margin:6px 0}
+  .starcard p{color:var(--dim);font-size:14px;line-height:1.75}
+
+  .cho{font-size:24px;letter-spacing:5px;color:var(--gold);font-weight:800;margin:6px 0}
+  .quote-src{font-size:12px;color:var(--dim);margin-top:6px}
+  input.txt{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--txt);font-size:15px}
+  input.txt:focus{outline:none;border-color:var(--gold)}
+  .feedback{font-size:14px;margin-top:8px;font-weight:700;min-height:20px}
+  .feedback.ok{color:var(--green)}
+  .feedback.no{color:var(--red)}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:560px){.grid{grid-template-columns:1fr}}
+  .flip{perspective:1000px;height:210px;cursor:pointer}
+  .flip .inner{position:relative;width:100%;height:100%;transition:transform .6s;transform-style:preserve-3d}
+  .flip.act .inner{transform:rotateY(180deg)}
+  .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;border:1px solid var(--line);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px;text-align:center}
+  .front{background:linear-gradient(160deg,var(--panel2),var(--panel))}
+  .front .emoji{font-size:44px}
+  .front .nm{font-weight:800;font-size:17px;margin-top:8px}
+  .front .hint{font-size:12px;color:var(--dim);margin-top:4px}
+  .back{background:linear-gradient(160deg,#241d4d,#191f45);transform:rotateY(180deg);font-size:12.5px;color:var(--dim);line-height:1.6}
+  .back b{color:var(--gold2)}
+
+  /* OX */
+  .oxwrap .card{padding:16px}
+  .oxq{font-weight:700;font-size:15.5px;line-height:1.6;margin-bottom:12px}
+  .oxrow{display:flex;gap:10px}
+  .oxbtn{flex:1;border:1px solid var(--line);background:var(--panel2);color:var(--txt);font-size:22px;font-weight:800;padding:12px;border-radius:12px;cursor:pointer;transition:.15s}
+  .oxbtn:hover{border-color:var(--gold)}
+  .oxbtn.ok{background:rgba(95,224,160,.18);border-color:var(--green)}
+  .oxbtn.bad{background:rgba(255,123,123,.16);border-color:var(--red)}
+
+  textarea{width:100%;min-height:100px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--txt);font-size:14.5px;line-height:1.6;resize:vertical;font-family:inherit}
+  textarea:focus{outline:none;border-color:var(--gold)}
+  .mission{border-left:3px solid var(--purple);padding:4px 0 4px 12px;margin:16px 0 6px}
+  .mission .mt{font-weight:800;color:var(--gold2);font-size:15px}
+  .mission .md{font-size:13px;color:var(--dim);margin-top:2px;line-height:1.6}
+  .saved{font-size:12.5px;color:var(--green);text-align:center;margin-top:8px;min-height:16px}
+
+  footer{text-align:center;color:var(--dim);font-size:12px;margin-top:30px;line-height:1.7}
+  .coin{color:var(--gold);font-weight:800}
+  .warn{font-size:12px;color:var(--pink);text-align:center;margin:4px 0 -4px}
+</style>
+
+<div class="stars" id="stars"></div>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="badge">D E E P · R E A D E R · E D I T I O N</span>
+    <h1>전지적 독자 시점</h1>
+    <div class="sub">멸망한 세계에서 살아남는 세 가지 방법 —<br>다섯 번 넘게 정독한 <b>진짜 화신</b>들을 위한 심화 독후 시나리오</div>
+    <div class="sys">📜 <b>&lt;히든 시나리오 – 심화 독후활동&gt;</b>가 개방되었습니다.<br>난이도 <b>★★★★☆</b> · 스포일러 포함 · <span class="coin">코인</span>을 모으고 심화 골든벨을 울려라!</div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-t="s1">🎯 심화 시나리오 퀴즈</button>
+    <button class="tab" data-t="s6">🔔 심화 골든벨 OX</button>
+    <button class="tab" data-t="s3">💬 명대사·용어 초성</button>
+    <button class="tab" data-t="s4">🃏 인물 심층 도감</button>
+    <button class="tab" data-t="s2">✨ 나의 성좌 찾기</button>
+    <button class="tab" data-t="s5">✍️ 심화 독후 논술</button>
+  </nav>
+
+  <!-- ================= 1. QUIZ ================= -->
+  <section id="s1" class="on">
+    <div class="card">
+      <h2>🎯 심화 시나리오 퀴즈 <span class="lvl hard">HARD</span></h2>
+      <p class="lead">세계관 설정, 반전, 주제까지 파고드는 12문항. 다섯 번 읽은 사람만 만점을 노릴 수 있어요. ⚠️ 후반부 스포일러 포함!</p>
+      <div class="bar"><i id="qbar"></i></div>
+    </div>
+    <div id="quizArea"></div>
+    <div class="scoreBox" id="quizScore">
+      <div>획득한 코인</div>
+      <div class="big"><span id="scoreNum">0</span> / 12 🪙</div>
+      <div id="scoreMsg" class="sub" style="margin-top:6px"></div>
+      <div class="rowbtn"><button class="btn ghost small" onclick="resetQuiz()">🔄 다시 도전</button></div>
+    </div>
+  </section>
+
+  <!-- ================= 6. OX GOLDEN BELL ================= -->
+  <section id="s6">
+    <div class="card">
+      <h2>🔔 심화 골든벨 OX <span class="lvl hard">TRAP</span></h2>
+      <p class="lead">헷갈리게 꼬아둔 O/X 8문제. 한 번이라도 틀리면 골든벨은 다음 기회에! 끝까지 살아남아 보세요.</p>
+      <div class="warn" id="oxstate">🟢 생존 중 · 남은 문제 8개</div>
+    </div>
+    <div class="oxwrap" id="oxArea"></div>
+    <div class="scoreBox" id="oxScore">
+      <div class="big" id="oxBig">🔔</div>
+      <div id="oxMsg" class="sub"></div>
+      <div class="rowbtn"><button class="btn ghost small" onclick="resetOX()">🔄 다시 도전</button></div>
+    </div>
+  </section>
+
+  <!-- ================= 3. CHOSEONG ================= -->
+  <section id="s3">
+    <div class="card">
+      <h2>💬 명대사·핵심용어 초성 <span class="lvl hard">HARD</span></h2>
+      <p class="lead">작품의 명대사와 세계관 핵심 용어예요. 초성과 힌트를 보고 빈칸을 채워보세요. (띄어쓰기는 자유롭게)</p>
+    </div>
+    <div id="choArea"></div>
+  </section>
+
+  <!-- ================= 4. CHARACTER CARDS ================= -->
+  <section id="s4">
+    <div class="card">
+      <h2>🃏 인물 심층 도감</h2>
+      <p class="lead">카드를 눌러 뒤집으면 인물의 진짜 정체와 매력이 나와요. ⚠️ 반전 스포일러 포함!</p>
+    </div>
+    <div class="grid" id="charGrid"></div>
+  </section>
+
+  <!-- ================= 2. PERSONALITY ================= -->
+  <section id="s2">
+    <div class="card">
+      <h2>✨ 나와 어울리는 성좌는?</h2>
+      <p class="lead">7개의 질문에 솔직하게 답하면, 당신을 후원할 성좌의 유형을 찾아드려요. 잠깐 쉬어가는 코너!</p>
+    </div>
+    <div id="persoArea" class="ptrait"></div>
+    <div class="presult" id="persoResult"></div>
+  </section>
+
+  <!-- ================= 5. REFLECTION ================= -->
+  <section id="s5">
+    <div class="card">
+      <h2>✍️ 심화 독후 논술 미션</h2>
+      <p class="lead">여러 번 읽은 사람만 답할 수 있는, 정답 없는 생각 미션이에요. 작성한 내용은 이 기기에 자동 저장돼요.</p>
+
+      <div class="mission"><div class="mt">🌟 미션 1. 재독의 발견</div><div class="md">다섯 번 넘게 읽으면서, 처음엔 놓쳤는데 다시 보니 새롭게 보인 복선이나 장면이 있나요? 무엇이 어떻게 다르게 보였나요?</div></div>
+      <textarea id="r1" placeholder="예) 처음엔 그냥 넘어갔던 ○○의 말이, 사실은 결말의 복선이었다는 걸..."></textarea>
+
+      <div class="mission"><div class="mt">🌟 미션 2. 개연성 vs 이야기의 힘</div><div class="md">무리한 행동에는 '개연성'이라는 대가가 따르지만, 인물들은 '설화(이야기)의 힘'으로 그 벽을 넘기도 하죠. 규칙(개연성)과 이야기의 힘, 나는 어느 쪽이 더 중요하다고 생각하나요? 이유는?</div></div>
+      <textarea id="r2" placeholder="내 생각을 근거와 함께 적어보세요..."></textarea>
+
+      <div class="mission"><div class="mt">🌟 미션 3. 김독자의 선택</div><div class="md">김독자가 모두를 위해 스스로를 내던진 선택에 대해 어떻게 생각하나요? 나라면 같은 선택을 할 수 있을까요?</div></div>
+      <textarea id="r3" placeholder="내 생각을 적어보세요..."></textarea>
+
+      <div class="mission"><div class="mt">🌟 미션 4. '가장 오래된 꿈'의 의미</div><div class="md">이야기 전체를 아우르는 김독자의 정체 '가장 오래된 꿈'은 무엇을 뜻할까요? 이 작품이 말하는 '독자'와 '이야기'의 관계를 내 말로 풀어보세요.</div></div>
+      <textarea id="r4" placeholder="내 해석을 적어보세요..."></textarea>
+
+      <div class="mission"><div class="mt">🌟 미션 5. 내가 성좌라면</div><div class="md">내가 이 세계의 성좌라면 누구를 후원하고 싶나요? 그 인물에게 보낼 '후원 메시지'를 성좌 이름과 함께 지어보세요.</div></div>
+      <textarea id="r5" placeholder="예) [○○의 별]이(가) △△에게 후원하셨습니다. '...'"></textarea>
+
+      <div class="rowbtn">
+        <button class="btn" onclick="saveRef()">💾 저장하기</button>
+        <button class="btn ghost small" onclick="printRef()">🖨️ 인쇄 / PDF로 남기기</button>
+      </div>
+      <div class="saved" id="savedMsg"></div>
+    </div>
+  </section>
+
+  <footer>
+    📚 전지적 독자 시점 · 심화 독후활동 (중1~2 · 재독자용) · 팬 독후 활동지<br>
+    학습 목적의 독후활동이며, 원작 &lt;전지적 독자 시점&gt;의 저작권은 작가(싱숑)에게 있습니다.
+  </footer>
+</div>
+
+<script>
+/* ---------- starfield ---------- */
+(function(){
+  const box=document.getElementById('stars');let h='';
+  for(let i=0;i<70;i++){const x=Math.random()*100,y=Math.random()*100,d=(Math.random()*3+2).toFixed(1),delay=(Math.random()*3).toFixed(1);
+    h+=`<i style="left:${x}%;top:${y}%;animation-duration:${d}s;animation-delay:${delay}s"></i>`;}
+  box.innerHTML=h;
+})();
+
+/* ---------- tabs ---------- */
+document.getElementById('tabs').addEventListener('click',e=>{
+  const b=e.target.closest('.tab'); if(!b)return;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('on'));
+  b.classList.add('active');
+  document.getElementById(b.dataset.t).classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* ================= QUIZ (HARD) ================= */
+const QUIZ=[
+  {q:"소설 속 소설 '멸살법(멸망한 세계에서 살아남는 세 가지 방법)'의 진짜 작가로 밝혀지는 인물은?",
+   o:["김독자","<b>한수영</b> (필명 tls123)","유중혁","안나 크로프트"],a:1,
+   e:"엉뚱하고 능청스러운 동료 한수영이, 사실은 필명 'tls123'으로 멸살법을 쓴 작가였다는 것이 큰 반전이에요."},
+  {q:"김독자의 배타적 스킬이자, 그의 정신과 이야기를 지켜주는 '벽'의 이름은?",
+   o:["전지적 독자 시점","<b>제4의 벽(4번째 벽)</b>","개연성의 벽","성좌의 눈"],a:1,
+   e:"제4의 벽은 독자와 이야기 사이의 벽을 인격화한 존재예요. 김독자의 감정을 지켜주고 때로 대신 말해주기도 하죠."},
+  {q:"이야기에 어울리지 않거나 무리한 행동을 할 때, 그 대가로 소모되는 세계관의 '규칙 같은 비용'은?",
+   o:["코인","<b>개연성</b>","설화","성흔"],a:1,
+   e:"개연성은 '이 일이 이야기상 말이 되는가'를 따지는 비용이에요. 개연성을 무시하면 벼락 같은 대가가 따르기도 해요."},
+  {q:"성좌가 화신에게 내려주는 '능력·표식'을 부르는 말은?",
+   o:["설화","개연성","<b>성흔</b>","화신체"],a:2,
+   e:"성흔(聖痕)은 성좌에게서 받은 힘의 표식이에요. 화신은 이 성흔으로 시나리오를 헤쳐 나가죠."},
+  {q:"인물과 사건이 쌓아 올린 '이야기' 그 자체가 곧 힘이 되는데, 이를 무엇이라 부르나요?",
+   o:["<b>설화</b>","성흔","시나리오","개연성"],a:0,
+   e:"설화는 존재가 겪어온 이야기예요. 강한 설화를 가진 자는 그만큼 강해지죠. '이야기의 힘'을 상징하는 핵심 개념이에요."},
+  {q:"유중혁이 세상을 구하기 위해 수없이 반복한 회귀 횟수로 유명한 숫자는?",
+   o:["41회차","999회차","<b>1863회차</b>","3149회차"],a:2,
+   e:"1863회차. 유중혁은 죽을 때마다 처음으로 돌아가 그 긴 세월을 홀로 싸워 왔어요. 그래서 그의 고독이 더 깊게 느껴지죠."},
+  {q:"김독자를 초반부터 후원한 성좌 중, '중2병스러운' 이름으로 유명한 성좌는?",
+   o:["지옥의 심판자","<b>심연의 흑염룡</b>","절대선","최후의 방주"],a:1,
+   e:"'심연의 흑염룡'은 남들 앞에선 부끄러워하지만 결정적일 때 힘을 보태주는, 정 많은 초반의 든든한 후원자예요."},
+  {q:"김독자가 속한 지역의 시나리오를 진행하는 '담당 도깨비'의 이름은?",
+   o:["파순","<b>비형</b>","하계","도깨비 왕"],a:1,
+   e:"비형은 툴툴대면서도 김독자 일행에게 은근히 정을 주는 담당 도깨비예요. 미워할 수 없는 사회자죠."},
+  {q:"수많은 회귀에도 유중혁이 끝내 도달하지 못해 좌절했던 것은?",
+   o:["세상에서 가장 강한 힘","<b>모두가 함께 살아남는 '진짜 결말'</b>","도깨비가 되는 것","성좌들을 전부 이기는 것"],a:1,
+   e:"유중혁은 늘 누군가를 잃었어요. '혼자 살아남는 것'이 아니라 '함께 살아남는 결말'을 김독자와 함께 비로소 바라보게 되죠."},
+  {q:"미래를 내다보는 능력으로 김독자 일행과 대립하고 협력하기도 하는 외국의 예언자는?",
+   o:["이지혜","<b>안나 크로프트</b>","유상아","정희원"],a:1,
+   e:"안나 크로프트는 미래시(예언) 능력을 지닌 인물이에요. 자신이 본 미래를 위해 움직이며 김독자와 복잡하게 얽히죠."},
+  {q:"이야기 전체를 아우르는, 김독자의 최종적인 정체(별명)는?",
+   o:["최후의 도깨비","최초의 성좌","<b>가장 오래된 꿈</b>","멸망의 왕"],a:2,
+   e:"'가장 오래된 꿈'은 이 세계를 꿈꾼 존재이자, 이야기를 끝까지 사랑한 독자 김독자의 정체를 상징해요."},
+  {q:"이 작품이 반복해서 던지는 핵심 메시지에 가장 가까운 것은?",
+   o:["가장 강한 자가 결국 살아남는다","절망 속에서도 '이야기'와 '사람'은 계속되어야 한다","혼자 강해지는 것이 최선이다","운명은 절대 바꿀 수 없다"],a:1,
+   e:"전독시는 배틀물의 외피를 쓴 '이야기에 대한 이야기'예요. 포기하지 않는 사람들과 이야기의 힘을 끝까지 이야기하죠."}
+];
+let qIdx=0,qScore=0;
+function renderQuiz(){
+  const area=document.getElementById('quizArea');area.innerHTML='';
+  QUIZ.forEach((item,i)=>{
+    const c=document.createElement('div');c.className='card';c.dataset.i=i;
+    let opts='';item.o.forEach((o,j)=>{opts+=`<button class="opt" onclick="answer(${i},${j})">${o}</button>`;});
+    c.innerHTML=`<div class="q"><b>Q${i+1}.</b> ${item.q}</div>${opts}<div class="expl" id="ex${i}"></div>`;
+    area.appendChild(c);
+  });
+  updateBar();
+}
+function answer(i,j){
+  const card=document.querySelector(`#quizArea .card[data-i="${i}"]`);
+  if(card.dataset.done)return;card.dataset.done="1";
+  const btns=card.querySelectorAll('.opt');const correct=QUIZ[i].a;
+  btns.forEach((b,k)=>{b.classList.add('dim');
+    if(k===correct){b.classList.remove('dim');b.classList.add('correct');}
+    if(k===j&&j!==correct){b.classList.remove('dim');b.classList.add('wrong');}});
+  const ex=document.getElementById('ex'+i);
+  ex.innerHTML=(j===correct?'⭕ 정답! ':'❌ 아쉬워요. ')+QUIZ[i].e;
+  ex.classList.add('show');
+  if(j===correct)qScore++;
+  qIdx++;updateBar();
+  if(qIdx===QUIZ.length)finishQuiz();
+}
+function updateBar(){document.getElementById('qbar').style.width=(qIdx/QUIZ.length*100)+'%';}
+function finishQuiz(){
+  const box=document.getElementById('quizScore');box.classList.add('show');
+  document.getElementById('scoreNum').textContent=qScore;
+  let m;
+  if(qScore===12)m="🏆 <b style='color:#f5c451'>가장 오래된 꿈</b> 등극! 완벽한 독자예요. 당신이야말로 진짜 화신!";
+  else if(qScore>=10)m="🌟 회귀 1863회차급 내공! 거의 완벽하게 읽어냈어요.";
+  else if(qScore>=7)m="💪 훌륭한 화신이에요! 세계관을 깊이 이해하고 있어요.";
+  else if(qScore>=4)m="📖 좋아요! 설정 몇 개만 다시 짚으면 완벽해질 거예요.";
+  else m="🔄 다시 도전! 설화를 더 쌓아볼까요?";
+  document.getElementById('scoreMsg').innerHTML=m;
+  box.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function resetQuiz(){qIdx=0;qScore=0;document.getElementById('quizScore').classList.remove('show');renderQuiz();window.scrollTo({top:0,behavior:'smooth'});}
+renderQuiz();
+
+/* ================= OX GOLDEN BELL ================= */
+const OX=[
+  {q:"유중혁은 죽으면 이야기의 처음 시점으로 돌아가는 '회귀자'다.",a:true,
+   e:"맞아요. 유중혁은 죽을 때마다 처음으로 되돌아가는 회귀자예요."},
+  {q:"소설 '멸살법'의 작가는 주인공 김독자다.",a:false,
+   e:"아니에요! 작가는 필명 'tls123', 즉 동료 한수영이에요. 김독자는 그 소설의 '독자'죠."},
+  {q:"이야기에 맞지 않는 무리한 행동을 하면 그 대가로 '개연성'을 치러야 한다.",a:true,
+   e:"맞아요. 개연성을 무시하면 그만한 대가가 따르는 게 이 세계의 규칙이에요."},
+  {q:"성좌가 화신에게 힘을 내려주는 표식을 '설화'라고 부른다.",a:false,
+   e:"헷갈리기 쉬워요! 그건 '성흔(스티그마)'이에요. '설화'는 존재가 쌓아온 이야기를 뜻해요."},
+  {q:"'제4의 벽(4번째 벽)'은 김독자의 정신과 이야기를 지켜주는 존재다.",a:true,
+   e:"맞아요. 제4의 벽은 김독자 곁에서 그의 마음을 지켜주는 특별한 벽이에요."},
+  {q:"안나 크로프트는 미래를 내다보는 예언 능력을 가진 인물이다.",a:true,
+   e:"맞아요. 안나 크로프트는 미래시(예언) 능력으로 움직이는 외국 세력의 핵심 인물이에요."},
+  {q:"'가장 오래된 꿈'은 유중혁의 또 다른 이름이다.",a:false,
+   e:"아니에요! '가장 오래된 꿈'은 김독자의 정체를 상징하는 이름이에요."},
+  {q:"'화신'은 성좌의 후원을 받아 시나리오를 수행하는 사람을 뜻한다.",a:true,
+   e:"맞아요. 성좌가 하늘에서 지켜보고 후원하는 대상이 바로 화신이에요."}
+];
+let oxIdx=0,oxAlive=true;
+function renderOX(){
+  const area=document.getElementById('oxArea');area.innerHTML='';
+  document.getElementById('oxScore').classList.remove('show');
+  oxIdx=0;oxAlive=true;
+  updateOXState();
+  const item=OX[0];showOXCard(item,0);
+}
+function showOXCard(item,i){
+  const area=document.getElementById('oxArea');
+  const c=document.createElement('div');c.className='card';c.id='oxc'+i;
+  c.innerHTML=`<div class="oxq">Q${i+1}. ${item.q}</div>
+    <div class="oxrow"><button class="oxbtn" onclick="oxAns(${i},true)">O</button>
+    <button class="oxbtn" onclick="oxAns(${i},false)">X</button></div>
+    <div class="expl" id="oxe${i}"></div>`;
+  area.appendChild(c);
+}
+function oxAns(i,val){
+  if(!oxAlive)return;
+  const card=document.getElementById('oxc'+i);if(card.dataset.done)return;card.dataset.done="1";
+  const item=OX[i];const btns=card.querySelectorAll('.oxbtn');
+  const correct=item.a;const ok=(val===correct);
+  btns.forEach(b=>{const isO=b.textContent==='O';const bv=isO;
+    if(bv===correct)b.classList.add('ok');
+    if(bv===val&&!ok)b.classList.add('bad');});
+  const ex=document.getElementById('oxe'+i);
+  ex.innerHTML=(ok?'⭕ ':'❌ ')+item.e;ex.classList.add('show');
+  if(!ok){oxAlive=false;finishOX(false);return;}
+  oxIdx++;
+  if(oxIdx>=OX.length){finishOX(true);}
+  else{showOXCard(OX[oxIdx],oxIdx);updateOXState();
+    document.getElementById('oxc'+oxIdx).scrollIntoView({behavior:'smooth',block:'center'});}
+}
+function updateOXState(){
+  document.getElementById('oxstate').innerHTML=`🟢 생존 중 · 남은 문제 ${OX.length-oxIdx}개`;
+}
+function finishOX(win){
+  const box=document.getElementById('oxScore');box.classList.add('show');
+  if(win){document.getElementById('oxBig').textContent='🔔 골든벨!';
+    document.getElementById('oxMsg').innerHTML="8문제 전부 통과! <b style='color:#f5c451'>진정한 전독시 마스터</b>예요. 함정을 전부 피했네요 👑";
+    document.getElementById('oxstate').innerHTML='🏆 골든벨 성공!';}
+  else{document.getElementById('oxBig').textContent='💥';
+    document.getElementById('oxMsg').innerHTML=`${oxIdx+1}번째 문제에서 아쉽게 탈락! 함정에 걸렸네요. 다시 도전해 골든벨을 울려보세요.`;
+    document.getElementById('oxstate').innerHTML='🔴 탈락 · 재도전 가능';}
+  box.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function resetOX(){document.getElementById('oxScore').classList.remove('show');renderOX();window.scrollTo({top:0,behavior:'smooth'});}
+renderOX();
+
+/* ================= PERSONALITY ================= */
+const PQ=[
+  {q:"눈앞에 갑작스러운 시나리오(재난)가 시작됐다. 나는?",o:[["먼저 상황과 규칙을 분석하고 계획을 세운다","brain"],["일단 앞장서서 몸으로 부딪친다","fire"],["곁의 사람부터 지키고 챙긴다","heart"]]},
+  {q:"동료들과 함께일 때 나의 위치는?",o:[["조용히 관찰하다 결정적 조언을 던지는 참모","brain"],["앞에서 이끄는 리더","fire"],["분위기를 살피고 모두를 챙기는 중심","heart"]]},
+  {q:"가장 나다운 무기를 고른다면?",o:[["정보와 통찰","brain"],["압도적인 힘과 용기","fire"],["의리와 따뜻한 마음","heart"]]},
+  {q:"목표가 생기면 나는?",o:[["결말을 미리 그려두고 역산해 움직인다","brain"],["될 때까지 끈질기게 밀어붙인다","fire"],["함께할 사람부터 모은다","heart"]]},
+  {q:"'개연성'과 '이야기의 힘' 중 나에게 더 끌리는 것은?",o:[["규칙과 논리(개연성)","brain"],["불가능을 뚫는 의지(밀어붙임)","fire"],["함께 만든 이야기(설화)","heart"]]},
+  {q:"힘든 순간, 나를 버티게 하는 말은?",o:[["'분명 방법이 있어'","brain"],["'절대 안 져'","fire"],["'같이 있잖아'","heart"]]},
+  {q:"이야기 속 내가 맡고 싶은 역할은?",o:[["흐름을 꿰뚫는 전략가(김독자형)","brain"],["최전선의 최강 전사(유중혁형)","fire"],["모두를 지키는 수호자(동료형)","heart"]]}
+];
+const PR={
+  brain:{e:"📖",n:"가장 오래된 꿈",tag:"통찰과 전략의 성좌",p:"당신은 김독자처럼 상황을 냉정하게 읽어내는 사람이에요. 남들이 못 보는 흐름과 복선을 꿰뚫고, 위기 속에서도 '방법'을 찾아냅니다. 조용하지만 가장 결정적인 순간에 판을 뒤집는 진짜 전략가예요."},
+  fire:{e:"⚔️",n:"강철의 회귀자",tag:"불굴과 의지의 성좌",p:"당신은 유중혁처럼 절대 꺾이지 않는 사람이에요. 몇 번을 넘어져도 다시 일어나고, 개연성의 벽조차 의지로 밀어붙이죠. 그 뜨거움이 주변에 용기를 옮깁니다. 가장 앞에서 세상을 지키는 최강의 검이에요."},
+  heart:{e:"💛",n:"수호자의 별",tag:"의리와 설화의 성좌",p:"당신은 '혼자 강해지기'보다 '함께 살아남기'를 택하는 사람이에요. 동료를 먼저 생각하고, 함께 쌓은 이야기(설화)를 힘으로 바꾸죠. 당신 곁에선 누구나 든든함을 느껴요. 이야기를 끝까지 아름답게 만드는 진짜 주인공이에요."}
+};
+let pAns={};
+function renderPerso(){
+  const area=document.getElementById('persoArea');area.innerHTML='';
+  PQ.forEach((item,i)=>{
+    const c=document.createElement('div');c.className='card';let opts='';
+    item.o.forEach((o)=>{opts+=`<button class="opt" data-q="${i}" data-v="${o[1]}" onclick="pPick(this,${i})">${o[0]}</button>`;});
+    c.innerHTML=`<div class="q"><b>${i+1}.</b> ${item.q}</div>${opts}`;
+    area.appendChild(c);
+  });
+  const done=document.createElement('div');done.className='rowbtn';
+  done.innerHTML='<button class="btn" onclick="pResult()">✨ 나의 성좌 확인하기</button>';
+  area.appendChild(done);
+}
+function pPick(btn,i){document.querySelectorAll(`.opt[data-q="${i}"]`).forEach(b=>b.classList.remove('correct'));btn.classList.add('correct');pAns[i]=btn.dataset.v;}
+function pResult(){
+  if(Object.keys(pAns).length<PQ.length){alert('모든 질문에 답해 주세요! 🙂');return;}
+  const cnt={brain:0,fire:0,heart:0};Object.values(pAns).forEach(v=>cnt[v]++);
+  const top=Object.keys(cnt).reduce((a,b)=>cnt[a]>=cnt[b]?a:b);const r=PR[top];
+  const box=document.getElementById('persoResult');
+  box.innerHTML=`<div class="starcard"><div class="emoji">${r.e}</div><h3>${r.n}</h3><div class="tag">${r.tag}</div><p>${r.p}</p>
+    <div class="rowbtn"><button class="btn ghost small" onclick="pReset()">🔄 다시 하기</button></div></div>`;
+  box.classList.add('show');box.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function pReset(){pAns={};document.getElementById('persoResult').classList.remove('show');renderPerso();window.scrollTo({top:0,behavior:'smooth'});}
+renderPerso();
+
+/* ================= CHOSEONG ================= */
+const CHO=[
+  {cho:"ㄱㅁ",ans:["결말"],hint:"김독자가 남들과 달리 이미 알고 있던 것 (명대사: '이 소설의 ○○을 나는 알고 있다')",disp:"“이 소설의 ○○ 을 나는 알고 있다.”"},
+  {cho:"ㄱㅇㅅ",ans:["개연성"],hint:"이야기에 맞지 않는 무리한 행동을 하면 소모되는 세계관의 비용",disp:"무리한 일을 하면 ○○○ 을 대가로 치른다."},
+  {cho:"ㅅㅎ",ans:["설화"],hint:"존재가 겪어온 '이야기' 그 자체가 곧 힘이 되는 것",disp:"강한 ○○ 를 가진 자가 강해진다."},
+  {cho:"ㄱㄹㅇㄷ ㅂㄱㅎㄱ",ans:["그럼에도불구하고"],hint:"절망적인 상황에서도 포기하지 않고 나아갈 때 붙는 말 (8글자)",disp:"“○○○○, ○○○○ 나는 나아간다.”"},
+  {cho:"ㄱㅈ ㅇㄹㄷ ㄲ",ans:["가장오래된꿈"],hint:"이야기를 끝까지 사랑한 독자, 김독자의 최종적인 정체",disp:"김독자의 정체는 '○○ ○○○ ○'."},
+  {cho:"ㅂㅎ",ans:["비형"],hint:"김독자 지역의 시나리오를 진행하는 담당 도깨비 이름",disp:"툴툴대지만 정 많은 담당 도깨비, ○○."}
+];
+function norm(s){return (s||'').replace(/\s+/g,'').trim();}
+function renderCho(){
+  const area=document.getElementById('choArea');area.innerHTML='';
+  CHO.forEach((item,i)=>{
+    const c=document.createElement('div');c.className='card';
+    c.innerHTML=`<div class="cho">${item.cho}</div>
+      <div class="q" style="margin:2px 0 4px">${item.disp}</div>
+      <div class="quote-src">💡 힌트: ${item.hint}</div>
+      <input class="txt" id="ci${i}" placeholder="빈칸에 들어갈 말은?" onkeydown="if(event.key==='Enter')checkCho(${i})">
+      <div class="rowbtn" style="justify-content:flex-start;margin-top:10px">
+        <button class="btn small" onclick="checkCho(${i})">확인</button>
+        <button class="btn ghost small" onclick="showCho(${i})">정답 보기</button>
+      </div>
+      <div class="feedback" id="cf${i}"></div>`;
+    area.appendChild(c);
+  });
+}
+function checkCho(i){
+  const val=norm(document.getElementById('ci'+i).value);const f=document.getElementById('cf'+i);
+  if(!val){f.className='feedback no';f.textContent='답을 입력해 주세요!';return;}
+  const ok=CHO[i].ans.some(a=>norm(a)===val);
+  if(ok){f.className='feedback ok';f.textContent='⭕ 정답! 역시 진짜 독자네요 🎉';}
+  else{f.className='feedback no';f.textContent='❌ 조금 달라요. 힌트를 다시 보고 도전!';}
+}
+function showCho(i){const f=document.getElementById('cf'+i);f.className='feedback ok';f.textContent='정답: '+CHO[i].ans[0];document.getElementById('ci'+i).value=CHO[i].ans[0];}
+renderCho();
+
+/* ================= CHARACTERS ================= */
+const CHARS=[
+  {e:"📖",n:"김독자",hint:"멸살법의 유일한 완독자",b:"10년간 멸살법을 끝까지 읽은 <b>유일한 독자</b>. 결말을 아는 평범한 회사원에서 시작해, 이야기 전체를 짊어지는 <b>'가장 오래된 꿈'</b>이 된다. 침착한 전략가이자, 누구보다 이야기를 사랑한 사람."},
+  {e:"⚔️",n:"유중혁",hint:"1863회차의 회귀자",b:"죽으면 처음으로 돌아가는 <b>회귀자</b>. <b>1863번</b>의 삶을 홀로 반복하며 세상을 구하려 했던 최강의 검. 무뚝뚝하고 차갑지만, 그 안에 누구보다 뜨거운 의지를 품고 있다."},
+  {e:"✍️",n:"한수영",hint:"반전의 그 작가",b:"능청스럽고 머리 좋은 동료. 사실은 필명 <b>'tls123'</b>으로 멸살법을 쓴 <b>작가</b>라는 큰 반전의 인물. 위기를 뜻밖의 방식으로 뒤집는 재치의 소유자."},
+  {e:"🗡️",n:"정희원",hint:"올곧은 심판의 검",b:"신념이 확고한 <b>여전사</b>. 약자를 지키려는 마음이 강하고 흔들림이 없어, 일행의 든든한 기둥이 된다. 정의로운 검사의 표본."},
+  {e:"🏹",n:"이지혜",hint:"침착한 궁수 소녀",b:"어린 나이에도 <b>침착하고 실력 좋은 궁수</b>. 위기 속에서 빠르게 성장하며 일행에게 없어선 안 될 존재가 된다."},
+  {e:"🔮",n:"안나 크로프트",hint:"미래를 보는 예언자",b:"<b>미래시(예언)</b> 능력을 지닌 외국 세력의 핵심 인물. 자신이 본 미래를 실현하기 위해 움직이며, 김독자 일행과 대립하고 협력하기도 한다."},
+  {e:"🎭",n:"비형",hint:"김독자의 담당 도깨비",b:"김독자 지역의 시나리오를 진행하는 <b>담당 도깨비</b>. 툴툴대면서도 일행에게 은근히 정을 주는, 미워할 수 없는 사회자."},
+  {e:"🧱",n:"제4의 벽",hint:"이야기와 김독자를 잇는 벽",b:"김독자의 정신과 이야기를 지켜주는 특별한 <b>'벽'</b>. 독자와 이야기 사이의 경계가 인격을 얻은 존재로, 결정적인 순간 김독자의 곁을 지킨다."}
+];
+function renderChars(){
+  const g=document.getElementById('charGrid');g.innerHTML='';
+  CHARS.forEach((c)=>{
+    const d=document.createElement('div');d.className='flip';d.onclick=()=>d.classList.toggle('act');
+    d.innerHTML=`<div class="inner">
+      <div class="face front"><div class="emoji">${c.e}</div><div class="nm">${c.n}</div><div class="hint">${c.hint}</div><div class="hint">👆 눌러서 뒤집기</div></div>
+      <div class="face back">${c.b}</div></div>`;
+    g.appendChild(d);
+  });
+}
+renderChars();
+
+/* ================= REFLECTION SAVE ================= */
+const RKEYS=['r1','r2','r3','r4','r5'];
+function loadRef(){RKEYS.forEach(k=>{const v=localStorage.getItem('orv2_'+k);if(v!=null)document.getElementById(k).value=v;});}
+function saveRef(){
+  RKEYS.forEach(k=>localStorage.setItem('orv2_'+k,document.getElementById(k).value));
+  const m=document.getElementById('savedMsg');m.textContent='✅ 저장했어요! 이 기기에서 다시 열면 그대로 남아 있어요.';
+  setTimeout(()=>m.textContent='',3500);
+}
+RKEYS.forEach(k=>document.getElementById(k).addEventListener('input',()=>localStorage.setItem('orv2_'+k,document.getElementById(k).value)));
+function printRef(){window.print();}
+loadRef();
+</script>
