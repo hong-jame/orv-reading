@@ -110,6 +110,18 @@
   .oxbtn.ok{background:rgba(95,224,160,.18);border-color:var(--green)}
   .oxbtn.bad{background:rgba(255,123,123,.16);border-color:var(--red)}
 
+  /* matching */
+  .match{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .mcol{display:flex;flex-direction:column;gap:8px}
+  .mcol h4{margin:0 0 2px;font-size:13px;color:var(--dim);text-align:center;font-weight:700}
+  .mitem{border:1px solid var(--line);background:var(--panel2);color:var(--txt);border-radius:12px;padding:11px 12px;font-size:13.5px;line-height:1.5;cursor:pointer;transition:.15s;text-align:left}
+  .mterm{font-weight:800;text-align:center}
+  .mitem:hover{border-color:var(--gold)}
+  .mitem.sel{border-color:var(--gold);background:rgba(245,196,81,.16);box-shadow:0 0 0 2px rgba(245,196,81,.3)}
+  .mitem.done{background:rgba(95,224,160,.16);border-color:var(--green);color:#d6ffe9;cursor:default;opacity:.85}
+  .mitem.bad{animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
   textarea{width:100%;min-height:100px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--txt);font-size:14.5px;line-height:1.6;resize:vertical;font-family:inherit}
   textarea:focus{outline:none;border-color:var(--gold)}
   .mission{border-left:3px solid var(--purple);padding:4px 0 4px 12px;margin:16px 0 6px}
@@ -136,6 +148,8 @@
     <button class="tab active" data-t="s1">🎯 심화 시나리오 퀴즈</button>
     <button class="tab" data-t="s6">🔔 심화 골든벨 OX</button>
     <button class="tab" data-t="s3">💬 명대사·용어 초성</button>
+    <button class="tab" data-t="s7">🔗 용어 매칭</button>
+    <button class="tab" data-t="s8">🖊️ 단답 골든벨</button>
     <button class="tab" data-t="s4">🃏 인물 심층 도감</button>
     <button class="tab" data-t="s2">✨ 나의 성좌 찾기</button>
     <button class="tab" data-t="s5">✍️ 심화 독후 논술</button>
@@ -179,6 +193,32 @@
       <p class="lead">작품의 명대사와 세계관 핵심 용어예요. 초성과 힌트를 보고 빈칸을 채워보세요. (띄어쓰기는 자유롭게)</p>
     </div>
     <div id="choArea"></div>
+  </section>
+
+  <!-- ================= 7. MATCHING ================= -->
+  <section id="s7">
+    <div class="card">
+      <h2>🔗 세계관 용어 개념 매칭 <span class="lvl hard">HARD</span></h2>
+      <p class="lead">왼쪽 <b>용어</b>를 누르고, 오른쪽에서 알맞은 <b>뜻</b>을 눌러 짝을 맞추세요. 10쌍을 모두 연결하면 클리어! 헷갈리는 개연성·설화·성흔을 확실히 구분해 봐요.</p>
+      <div class="warn" id="mstate">🔗 연결한 짝 0 / 10 · 시도 0회</div>
+    </div>
+    <div class="card"><div class="match" id="matchArea"></div></div>
+    <div class="scoreBox" id="matchScore">
+      <div class="big">🎉 완성!</div>
+      <div id="matchMsg" class="sub"></div>
+      <div class="rowbtn"><button class="btn ghost small" onclick="resetMatch()">🔄 다시 섞기</button></div>
+    </div>
+  </section>
+
+  <!-- ================= 8. SHORT ANSWER ================= -->
+  <section id="s8">
+    <div class="card">
+      <h2>🖊️ 초고난도 단답 골든벨 <span class="lvl hard">EXTREME</span></h2>
+      <p class="lead">보기 없이 직접 답을 타이핑하는 최고 난이도 12문항! 인물·성좌·용어의 정확한 이름을 알아야 풀 수 있어요. (띄어쓰기·대소문자는 자유)</p>
+      <div class="bar"><i id="sabar"></i></div>
+      <div class="warn" id="sastate">🖊️ 맞힌 문제 0 / 12</div>
+    </div>
+    <div id="saArea"></div>
   </section>
 
   <!-- ================= 4. CHARACTER CARDS ================= -->
@@ -550,6 +590,108 @@ function renderChars(){
   });
 }
 renderChars();
+
+/* ================= MATCHING ================= */
+const MATCH=[
+  {t:"개연성",d:"이야기에 맞지 않는 무리한 행동에 따르는 대가·비용"},
+  {t:"설화",d:"존재가 쌓아온 '이야기' 그 자체로, 곧 힘이 되는 것"},
+  {t:"성흔",d:"성좌가 화신에게 내려주는 능력의 표식(스티그마)"},
+  {t:"화신",d:"성좌의 후원을 받아 시나리오를 수행하는 사람"},
+  {t:"성좌",d:"신화·전설·역사 속 존재로, 화신을 지켜보고 후원함"},
+  {t:"도깨비",d:"시나리오를 개최하고 진행하는 사회자"},
+  {t:"코인",d:"시나리오 보상이자 세계관에서 쓰이는 화폐"},
+  {t:"회귀",d:"죽으면 이야기의 처음 시점으로 되돌아가는 것"},
+  {t:"거대 설화",d:"여러 설화가 모여 세계관급으로 커진 이야기"},
+  {t:"제4의 벽",d:"김독자의 정신과 이야기를 지켜주는 특별한 벽"}
+];
+let mSel=null,mDone=0,mTries=0;
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function renderMatch(){
+  mSel=null;mDone=0;mTries=0;
+  document.getElementById('matchScore').classList.remove('show');
+  const area=document.getElementById('matchArea');
+  const defs=shuffle(MATCH.map((m,i)=>({d:m.d,id:i})));
+  let L='<div class="mcol"><h4>용어</h4>';
+  MATCH.forEach((m,i)=>{L+=`<button class="mitem mterm" data-id="${i}" onclick="mPickTerm(${i},this)">${m.t}</button>`;});
+  L+='</div>';
+  let R='<div class="mcol"><h4>뜻</h4>';
+  defs.forEach(o=>{R+=`<button class="mitem mdef" data-id="${o.id}" onclick="mPickDef(${o.id},this)">${o.d}</button>`;});
+  R+='</div>';
+  area.innerHTML=L+R;updateMState();
+}
+function updateMState(){document.getElementById('mstate').innerHTML=`🔗 연결한 짝 ${mDone} / ${MATCH.length} · 시도 ${mTries}회`;}
+function mPickTerm(id,el){
+  if(el.classList.contains('done'))return;
+  document.querySelectorAll('.mterm.sel').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');mSel=id;
+}
+function mPickDef(id,el){
+  if(el.classList.contains('done'))return;
+  if(mSel===null){el.classList.add('bad');setTimeout(()=>el.classList.remove('bad'),350);return;}
+  mTries++;
+  if(id===mSel){
+    el.classList.add('done');
+    const t=document.querySelector(`.mterm[data-id="${mSel}"]`);if(t){t.classList.add('done');t.classList.remove('sel');}
+    mSel=null;mDone++;
+    if(mDone===MATCH.length)finishMatch();
+  }else{
+    el.classList.add('bad');setTimeout(()=>el.classList.remove('bad'),350);
+    const t=document.querySelector('.mterm.sel');if(t){t.classList.add('bad');setTimeout(()=>t.classList.remove('bad'),350);}
+  }
+  updateMState();
+}
+function finishMatch(){
+  const box=document.getElementById('matchScore');box.classList.add('show');
+  const perfect=mTries===MATCH.length;
+  document.getElementById('matchMsg').innerHTML=perfect
+    ?`완벽해요! 단 ${mTries}번 만에 전부 정확히 연결했어요. 용어 마스터 👑`
+    :`총 ${mTries}번 시도로 10쌍을 모두 연결했어요! 잘했어요 🎉`;
+  box.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function resetMatch(){renderMatch();window.scrollTo({top:0,behavior:'smooth'});}
+renderMatch();
+
+/* ================= SHORT ANSWER ================= */
+const SA=[
+  {q:"유중혁이 다루는 검(도)의 이름은?",a:["흑천마도"]},
+  {q:"소설 '멸살법'을 쓴 작가의 필명(닉네임)은?",a:["tls123"]},
+  {q:"그 작가의 정체인 동료의 이름은?",a:["한수영"]},
+  {q:"이야기 전체를 아우르는 김독자의 최종 정체(별명)는?",a:["가장오래된꿈"]},
+  {q:"도깨비들을 다스리는 '도깨비 왕'의 이름은?",a:["파순"]},
+  {q:"김독자 지역의 시나리오를 진행하는 담당 도깨비 이름은?",a:["비형"]},
+  {q:"성좌와 마왕이 충돌하는 거대 설화 전쟁의 이름은?",a:["성마대전"]},
+  {q:"'지옥의 불꽃을 관장하는 대천사' 성좌의 이름은?",a:["우리엘"]},
+  {q:"유중혁이 반복한 회귀 횟수는? (숫자만)",a:["1863","1863회차"]},
+  {q:"미래를 내다보는 예언 능력을 지닌 외국의 인물은?",a:["안나크로프트","안나"]},
+  {q:"술과 축제를 관장하며 김독자를 후원한 그리스 신 성좌는?",a:["디오니소스"]},
+  {q:"김독자의 정신과 이야기를 지켜주는 '벽'의 이름은?",a:["제4의벽","4번째벽","네번째벽","제사의벽"]}
+];
+let saCount=0;
+function normSA(s){return (s||'').replace(/\s+/g,'').toLowerCase().trim();}
+function renderSA(){
+  saCount=0;updateSA();
+  const area=document.getElementById('saArea');area.innerHTML='';
+  SA.forEach((item,i)=>{
+    const c=document.createElement('div');c.className='card';
+    c.innerHTML=`<div class="q"><b>Q${i+1}.</b> ${item.q}</div>
+      <input class="txt" id="si${i}" placeholder="답을 입력하세요" onkeydown="if(event.key==='Enter')checkSA(${i})">
+      <div class="rowbtn" style="justify-content:flex-start;margin-top:10px">
+        <button class="btn small" onclick="checkSA(${i})">확인</button>
+        <button class="btn ghost small" onclick="showSA(${i})">정답 보기</button>
+      </div><div class="feedback" id="sf${i}"></div>`;
+    area.appendChild(c);
+  });
+}
+function checkSA(i){
+  const el=document.getElementById('si'+i);const val=normSA(el.value);const f=document.getElementById('sf'+i);
+  if(!val){f.className='feedback no';f.textContent='답을 입력해 주세요!';return;}
+  const ok=SA[i].a.some(a=>normSA(a)===val);
+  if(ok){if(!el.dataset.got){el.dataset.got="1";saCount++;updateSA();}f.className='feedback ok';f.textContent='⭕ 정답! 역시 매니아 🎉';}
+  else{f.className='feedback no';f.textContent='❌ 아쉬워요. 다시 도전!';}
+}
+function showSA(i){const f=document.getElementById('sf'+i);f.className='feedback ok';f.textContent='정답: '+SA[i].a[0];document.getElementById('si'+i).value=SA[i].a[0];}
+function updateSA(){document.getElementById('sastate').innerHTML=`🖊️ 맞힌 문제 ${saCount} / ${SA.length}`;document.getElementById('sabar').style.width=(saCount/SA.length*100)+'%';}
+renderSA();
 
 /* ================= REFLECTION SAVE ================= */
 const RKEYS=['r1','r2','r3','r4','r5'];
